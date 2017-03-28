@@ -170,6 +170,9 @@ knapsackRecMemAux( std::vector<Item> const& items, int const& W, int index, Tabl
 		return 0;
 	}
 
+	if (table[W][index] != -1)
+		return table[W][index];
+
 	int w = items[index - 1].weight;
 	int passOn = knapsackRecMemAux(items, W, index - 1, table);
 	if (W >= w) {
