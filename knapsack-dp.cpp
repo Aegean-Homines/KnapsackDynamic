@@ -1,9 +1,9 @@
 #include "knapsack-dp.h"
 #include <iostream>
 #include <numeric>
+#include <algorithm>
 
-
-typedef std::vector<std::vector<int>> ege;
+typedef std::vector<std::vector<int>> Table;
 
 ////////////////////////////////////////////////////////////
 Item::Item( int const& weight, int const& value ) 
@@ -36,7 +36,18 @@ typedef std::vector< std::vector<int> > Table; //2-dimensional table
 //the returned value is a vector of indices
 std::vector<int> knapsackDP( std::vector<Item> const& items, int const& W ) {
 	int num_items = items.size();
+	Table table(W + 1, std::vector<int>(items.size() + 1, 0));
 
+	for (int i = 1; i <= items.size(); ++i) {
+		for (int w = 1; w <= W; ++w) {
+			Item const & item = items[i-1];
+			if (w >= item.weight)
+				table[w][i] = std::max(table[w][i - 1], table[w - item.weight][i - 1] + item.value);
+			else
+				table[w][i] = table[w][i - 1];
+		}
+	}
+	
     /*  ........... */
 
 	//print final table - for debugging?
@@ -63,7 +74,17 @@ std::vector<int> knapsackDP( std::vector<Item> const& items, int const& W ) {
 
 	//figure out which items are in the bag based on the table
 	std::vector<int> bag;
-    /*  ........... */
+	int remainingWeight = W;
+	int itemIndex = num_items - 1;
+	while(remainingWeight != 0) {
+		Item const & item = items[itemIndex];
+		if (table[remainingWeight][itemIndex + 1] != table[remainingWeight][itemIndex]) { // didn't inherit previous value
+			bag.push_back(itemIndex);
+			remainingWeight -= item.weight;
+		}
+		--itemIndex;
+	}
+
 	return bag;
 }
 
@@ -92,7 +113,7 @@ int knapsackRecMemAux( std::vector<Item> const&, int const&, int, Table& );
 //function to kick start
 std::vector<int> knapsackRecMem( std::vector<Item> const& items, int const& W ) {
 	int num_items = items.size();
-
+	Table table;
     /* ........... */
 
 	//print table - debugging?
@@ -129,6 +150,7 @@ std::vector<int> knapsackRecMem( std::vector<Item> const& items, int const& W ) 
 int
 knapsackRecMemAux( std::vector<Item> const& items, int const& W, int index, Table & table ) {
     /* ........... */
+	return 0;
 }
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
