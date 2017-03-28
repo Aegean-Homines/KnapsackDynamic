@@ -38,7 +38,7 @@ std::vector<int> knapsackDP( std::vector<Item> const& items, int const& W ) {
 	int num_items = items.size();
 	Table table(W + 1, std::vector<int>(items.size() + 1, 0));
 
-	for (int i = 1; i <= items.size(); ++i) {
+	for (int i = 1; i <= num_items; ++i) {
 		for (int w = 1; w <= W; ++w) {
 			Item const & item = items[i-1];
 			if (w >= item.weight)
@@ -74,9 +74,10 @@ std::vector<int> knapsackDP( std::vector<Item> const& items, int const& W ) {
 
 	//figure out which items are in the bag based on the table
 	std::vector<int> bag;
+
 	int remainingWeight = W;
 	int itemIndex = num_items - 1;
-	while(remainingWeight != 0) {
+	while (remainingWeight != 0 && itemIndex >= 0) {
 		Item const & item = items[itemIndex];
 		if (table[remainingWeight][itemIndex + 1] != table[remainingWeight][itemIndex]) { // didn't inherit previous value
 			bag.push_back(itemIndex);
@@ -113,9 +114,13 @@ int knapsackRecMemAux( std::vector<Item> const&, int const&, int, Table& );
 //function to kick start
 std::vector<int> knapsackRecMem( std::vector<Item> const& items, int const& W ) {
 	int num_items = items.size();
-	Table table;
-    /* ........... */
+	Table table(W + 1, std::vector<int>(items.size() + 1, -1));
 
+	for (int i = 0; i <= num_items; ++i) table[0][i] = 0;
+	for (int w = 0; w <= W; ++w) table[w][0] = 0;
+
+	knapsackRecMemAux(items, W, num_items, table);
+	
 	//print table - debugging?
     //do not delete this code
     if ( num_items + W < 50 ) { //print only if table is not too big
@@ -141,7 +146,18 @@ std::vector<int> knapsackRecMem( std::vector<Item> const& items, int const& W ) 
 
 	//figure out which items are in the bag based on the table
 	std::vector<int> bag;
-    /* ........... */
+	int remainingWeight = W;
+	int itemIndex = num_items - 1;
+	while (remainingWeight != 0 && itemIndex >= 0) {
+		//std::cout << "current item index: " << itemIndex << std::endl;
+		Item const & item = items[itemIndex];
+		if (table[remainingWeight][itemIndex + 1] != table[remainingWeight][itemIndex]) { // didn't inherit previous value
+			bag.push_back(itemIndex);
+			remainingWeight -= item.weight;
+		}
+		--itemIndex;
+	}
+
 	return bag;
 }
 
@@ -149,8 +165,20 @@ std::vector<int> knapsackRecMem( std::vector<Item> const& items, int const& W ) 
 //the real recursive function
 int
 knapsackRecMemAux( std::vector<Item> const& items, int const& W, int index, Table & table ) {
-    /* ........... */
-	return 0;
+
+	if (index == 0 || W == 0) {
+		return 0;
+	}
+
+	int w = items[index - 1].weight;
+	int passOn = knapsackRecMemAux(items, W, index - 1, table);
+	if (W >= w) {
+		table[W][index] = std::max(passOn, knapsackRecMemAux(items, W - items[index - 1].weight, index - 1, table) + items[index - 1].value);
+	}else {
+		table[W][index] = passOn;
+	}
+
+	return table[W][index];
 }
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
