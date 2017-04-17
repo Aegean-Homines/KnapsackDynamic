@@ -38,6 +38,7 @@ std::vector<int> knapsackDP( std::vector<Item> const& items, int const& W ) {
 	int num_items = items.size();
 	Table table(W + 1, std::vector<int>(items.size() + 1, 0));
 
+	// This is the part replacing recursion
 	for (int i = 1; i <= num_items; ++i) {
 		for (int w = 1; w <= W; ++w) {
 			Item const & item = items[i-1];
@@ -47,8 +48,6 @@ std::vector<int> knapsackDP( std::vector<Item> const& items, int const& W ) {
 				table[w][i] = table[w][i - 1];
 		}
 	}
-	
-    /*  ........... */
 
 	//print final table - for debugging?
     //do not delete this code
